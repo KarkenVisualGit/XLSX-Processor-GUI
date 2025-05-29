@@ -44,6 +44,5 @@ electron-builder-squirrel-windows/
 *.tsbuildinfo
 *.xlsx
 *.mp4
-*.gif
 *.zip
 *.exe
