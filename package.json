@@ -1,0 +1,31 @@
+{
+  "name": "excelcheckupdatekaspisales",
+  "version": "1.0.0",
+  "description": "XLSX files processing",
+  "main": "main.js",
+  "scripts": {
+    "start": "chcp 65001 >nul && electron .",
+    "build": "electron-builder",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Karken",
+  "license": "ISC",
+  "dependencies": {
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "electron": "^36.3.1",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "com.karken.xlsxprocessor",
+    "productName": "Kaspi XLSX Tool",
+    "files": [
+      "**/*"
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "forceCodeSigning": false
+  }
+}

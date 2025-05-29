@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <title>XLSX Обработчик</title>
+</head>
+
+<body>
+    <h1>Обработка заказов Kaspi</h1>
+
+    <h2>Файлы для обработки</h2>
+    <div>
+        <button id="selectInputBtn">Выбрать файл заказов</button>
+        <span id="inputFileName">Файл не выбран</span>
+    </div>
+    <br /><br />
+    <div>
+        <button id="selectPriceBtn">Выбрать прайс-лист</button>
+        <span id="priceFileName">Файл не выбран</span>
+    </div>
+    <br /><br />
+    <button id="processBtn">Обработать файл</button>
+    <div id="status" style="margin-top: 10px;">Готово к работе</div>
+
+    <h3>Логи выполнения</h3>
+    <div id="log" style="display: flex; flex-direction: column; gap: 12px;"></div>
+    <button id="saveBtn">Сохранить файл</button>
+    <script src="renderer.js"></script>
+</body>
+
+</html>
