@@ -8,6 +8,11 @@ function parseXLSX(filepath) {
     return XLSX.utils.sheet_to_json(sheet, { header: 1 });
 }
 
+function loadPriceData(priceJsonPath) {
+    const raw = fs.readFileSync(priceJsonPath, 'utf-8');
+    return JSON.parse(raw);
+}
+
 function saveXLSX(data, headers, outputPath) {
     const output = [headers, ...data];
 
@@ -28,9 +33,9 @@ function saveXLSX(data, headers, outputPath) {
 
 function getPriceMap(priceData) {
     const map = {};
-    for (let i = 1; i < priceData.length; i++) {
-        const article = priceData[i][1];
-        const price = parseFloat(priceData[i][2]);
+    for (let i = 0; i < priceData.length; i++) {
+        const article = priceData[i]["Артикул"];
+        const price = parseFloat(priceData[i]["Цена"]);
         if (article && !isNaN(price)) {
             map[article] = price;
         }
@@ -38,18 +43,19 @@ function getPriceMap(priceData) {
     return map;
 }
 
-async function processLatestXLSX(inputPath, pricePath) {
-    if (!inputPath || !pricePath) {
+async function processLatestXLSX(inputPath, priceJsonPath) {
+    if (!inputPath || !priceJsonPath) {
         return 'Оба файла должны быть выбраны!';
     }
     if (!fs.existsSync(inputPath)) return 'Файл заказов не найден.';
-    if (!fs.existsSync(pricePath)) return 'Файл прайса не найден.';
+    if (!fs.existsSync(priceJsonPath)) return 'Файл прайса не найден.';
 
-    console.log('Передаём в processXLSX:', inputPath, pricePath);
+    console.log('Передаём в processXLSX:', inputPath, priceJsonPath);
 
     const salesData = parseXLSX(inputPath);
-    const priceData = parseXLSX(pricePath);
+    const priceData = loadPriceData(priceJsonPath);
     const priceMap = getPriceMap(priceData);
+
 
     let updates = [];
     let removedRows = [];
@@ -58,6 +64,7 @@ async function processLatestXLSX(inputPath, pricePath) {
 
     const headers = salesData[0];
     const data = salesData.slice(1);
+
 
     for (let i = data.length - 1; i >= 0; i--) {
         const row = data[i];
@@ -119,6 +126,8 @@ async function processLatestXLSX(inputPath, pricePath) {
     message += '\n' + `Изначальная сумма: ${originalTotal.toFixed(2)}\n`;
     message += '\n' + `Новая сумма после проверки: ${newTotal.toFixed(2)}\n`;
     message += '\n' + `Результат сохранён в: ${outputPath}`;
+    console.log(updates.join('\n') + '\n\n');
+    console.log(removedRows.join('\n') + '\n\n');
 
     return {
         updates,

@@ -2,6 +2,7 @@ let inputFilePath = null;
 let priceFilePath = null;
 let lastOutputPath = '';
 
+
 document.getElementById('selectInputBtn').addEventListener('click', async () => {
     const result = await window.electronAPI.selectInputFile();
     if (result) {
@@ -10,24 +11,19 @@ document.getElementById('selectInputBtn').addEventListener('click', async () => 
     }
 });
 
-document.getElementById('selectPriceBtn').addEventListener('click', async () => {
-    const filePath = await window.electronAPI.selectPriceFile();
-    if (filePath) {
-        priceFilePath = filePath;
-        document.getElementById('priceFileName').textContent = filePath;
-    }
-});
-
 document.getElementById('processBtn').addEventListener('click', async () => {
     const status = document.getElementById('status');
     const log = document.getElementById('log');
     log.innerHTML = '';
 
-    if (!inputFilePath || !priceFilePath) {
-        status.textContent = 'Пожалуйста, выберите оба файла';
+    if (!inputFilePath) {
+        status.textContent = 'Пожалуйста, выберите файл заказов';
         return;
     }
     status.textContent = 'Обработка...';
+
+    const priceFilePath = await window.electronAPI.selectPriceFile();
+
     const result = await window.electronAPI.processXLSX(inputFilePath, priceFilePath);
 
     if (!result || typeof result !== 'object') {
@@ -37,21 +33,9 @@ document.getElementById('processBtn').addEventListener('click', async () => {
 
     lastOutputPath = result.outputPath;
 
-    // обновим статус
     status.textContent = 'Обработка завершена';
 
 });
-
-document.getElementById('saveBtn').addEventListener('click', async () => {
-    if (!lastOutputPath) {
-        alert('Сначала обработайте файл!');
-        return;
-    }
-
-    const result = await window.electronAPI.saveXLSX(lastOutputPath);
-    document.getElementById('status').textContent = result.message;
-});
-
 
 window.electronAPI.onLogMessage((result) => {
     const logEl = document.getElementById('log');
@@ -96,4 +80,14 @@ window.electronAPI.onLogMessage((result) => {
     `;
     logEl.appendChild(totals);
     logEl.scrollTop = logEl.scrollHeight;
+});
+
+document.getElementById('saveBtn').addEventListener('click', async () => {
+    if (!lastOutputPath) {
+        alert('Сначала обработайте файл!');
+        return;
+    }
+
+    const result = await window.electronAPI.saveXLSX(lastOutputPath);
+    document.getElementById('status').textContent = result.message;
 });

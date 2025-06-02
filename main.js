@@ -54,35 +54,9 @@ ipcMain.handle('select-price-file', async () => {
     const staticJsonPath = path.join(__dirname, 'data', 'kaspi_price.json');
     return staticJsonPath;
 });
-/* ipcMain.handle('select-price-file', async () => {
-    const { canceled, filePaths } = await dialog.showOpenDialog({
-        properties: ['openFile'],
-        filters: [{ name: 'Excel Files', extensions: ['xlsx'] }]
-    });
-    return canceled ? null : filePaths[0];
-}); */
 
-ipcMain.handle('process-xlsx', async (_event, inputPath, pricePath) => {
-    const result = await processLatestXLSX(inputPath, pricePath);
+ipcMain.handle('process-xlsx', async (_event, inputPath, staticJsonPath) => {
+    const result = await processLatestXLSX(inputPath, staticJsonPath);
     sendLogToWindow(result);
     return result;
 });
-
-/* ipcMain.handle('save-xlsx', async (_event, defaultPath) => {
-    const result = await dialog.showSaveDialog({
-        title: 'Сохранить файл',
-        defaultPath: defaultPath,
-        filters: [{ name: 'Excel', extensions: ['xlsx'] }],
-    });
-
-    if (result.canceled) return { success: false, message: 'Сохранение отменено.' };
-
-    const targetPath = result.filePath;
-
-    try {
-        fs.copyFileSync(defaultPath, targetPath);
-        return { success: true, message: `Файл сохранён: ${targetPath}` };
-    } catch (err) {
-        return { success: false, message: `Ошибка сохранения: ${err.message}` };
-    }
-}); */
