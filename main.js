@@ -49,13 +49,18 @@ ipcMain.handle('select-input-file', async () => {
     return canceled ? null : filePaths[0];
 });
 
+
 ipcMain.handle('select-price-file', async () => {
+    const staticJsonPath = path.join(__dirname, 'data', 'kaspi_price.json');
+    return staticJsonPath;
+});
+/* ipcMain.handle('select-price-file', async () => {
     const { canceled, filePaths } = await dialog.showOpenDialog({
         properties: ['openFile'],
         filters: [{ name: 'Excel Files', extensions: ['xlsx'] }]
     });
     return canceled ? null : filePaths[0];
-});
+}); */
 
 ipcMain.handle('process-xlsx', async (_event, inputPath, pricePath) => {
     const result = await processLatestXLSX(inputPath, pricePath);
@@ -63,7 +68,7 @@ ipcMain.handle('process-xlsx', async (_event, inputPath, pricePath) => {
     return result;
 });
 
-ipcMain.handle('save-xlsx', async (_event, defaultPath) => {
+/* ipcMain.handle('save-xlsx', async (_event, defaultPath) => {
     const result = await dialog.showSaveDialog({
         title: 'Сохранить файл',
         defaultPath: defaultPath,
@@ -80,4 +85,4 @@ ipcMain.handle('save-xlsx', async (_event, defaultPath) => {
     } catch (err) {
         return { success: false, message: `Ошибка сохранения: ${err.message}` };
     }
-});
+}); */
