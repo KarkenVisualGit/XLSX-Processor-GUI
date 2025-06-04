@@ -18,7 +18,18 @@
     <button id="processBtn">Обработать файл</button>
     <div id="status" style="margin-top: 10px;">Готово к работе</div>
 
-    <h3>Логи выполнения</h3>
+    <hr>
+    <h3>Пакетная обработка</h3>
+    <div>
+        <button id="select-batch-folder">Выбрать папку с заказами</button>
+        <span id="batch-folder-path"></span>
+    </div>
+    <div>
+        <button id="run-batch-processing">Запустить пакетную обработку</button>
+    </div>
+    <pre id="batch-output" style="white-space: pre-wrap; margin-top: 10px;"></pre>
+
+    <h4>Логи выполнения</h4>
     <div id="log" style="display: flex; flex-direction: column; gap: 12px;"></div>
     <script src="renderer.js"></script>
 </body>

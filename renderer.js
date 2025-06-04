@@ -2,6 +2,72 @@ let inputFilePath = null;
 let priceFilePath = null;
 let lastOutputPath = '';
 
+const selectBatchFolderBtn = document.getElementById('select-batch-folder');
+const batchFolderPathSpan = document.getElementById('batch-folder-path');
+const runBatchProcessingBtn = document.getElementById('run-batch-processing');
+const batchOutput = document.getElementById('batch-output');
+
+let selectedBatchFolder = '';
+let selectedPriceFile = '';
+
+selectBatchFolderBtn.addEventListener('click', async () => {
+    const result = await window.electronAPI.selectFolder();
+    if (!result.canceled && result.filePaths.length > 0) {
+        selectedBatchFolder = result.filePaths[0];
+        batchFolderPathSpan.textContent = selectedBatchFolder;
+    }
+});
+
+runBatchProcessingBtn.addEventListener('click', async () => {
+    if (!selectedBatchFolder) {
+        batchOutput.textContent = 'Пожалуйста, выберите папку с Excel-файлами.';
+        return;
+    }
+
+    const result = await window.electronAPI.selectPriceFile();
+    if (!result) {
+        batchOutput.textContent = 'Пожалуйста, выберите файл прайса.';
+        return;
+    }
+
+    selectedPriceFile = result;
+
+    batchOutput.textContent = 'Обработка файлов...';
+
+    const processingResults = await window.electronAPI.processBatchXLSX(selectedBatchFolder, selectedPriceFile);
+
+    if (!processingResults || !Array.isArray(processingResults)) {
+        batchOutput.textContent = 'Ошибка при обработке файлов.';
+        return;
+    }
+
+    let logText = '';
+    for (const fileResult of processingResults) {
+        logText += `📄 Файл: ${fileResult.file}\n`;
+        const res = fileResult.result;
+
+        if (typeof res === 'string') {
+            logText += `❌ ${res}\n\n`;
+            continue;
+        }
+
+        if (res.updates.length) {
+            logText += `🔧 Обновления:\n${res.updates.join('\n')}\n`;
+        }
+
+        if (res.removedRows.length) {
+            logText += `🗑 Удалено:\n${res.removedRows.join('\n')}\n`;
+        }
+
+        logText += `💰 Сумма до: ${res.originalTotal}\n`;
+        logText += `💰 Сумма после: ${res.newTotal}\n`;
+        logText += `📁 Сохранено в: ${res.outputPath}\n`;
+        logText += `-----------------------------\n\n`;
+    }
+
+    batchOutput.textContent = logText;
+});
+
 
 document.getElementById('selectInputBtn').addEventListener('click', async () => {
     const result = await window.electronAPI.selectInputFile();

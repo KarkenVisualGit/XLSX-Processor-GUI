@@ -138,4 +138,53 @@ async function processLatestXLSX(inputPath, priceJsonPath) {
     };
 }
 
-module.exports = { processLatestXLSX };
+async function processBatchXLSX(directoryPath, priceJsonPath) {
+    const allFiles = fs.readdirSync(directoryPath);
+    const matchedFiles = allFiles.filter(file =>
+        /^ArchiveOrders-\d{6}\.xlsx$/i.test(file) && !/_\d+\.xlsx$/i.test(file)
+    );
+
+    if (!matchedFiles.length) {
+        console.log('Нет подходящих файлов для обработки.');
+        return 'Нет подходящих файлов.';
+    }
+
+    let allResults = [];
+    let combinedRows = [];
+    let combinedHeaders = null;
+
+    for (const fileName of matchedFiles) {
+        const fullPath = path.join(directoryPath, fileName);
+        console.log(`\n--- Обработка файла: ${fileName} ---\n`);
+
+        try {
+            // Обрабатываем файл (удаляем строки, пересчитываем суммы и т.п.)
+            const result = await processLatestXLSX(fullPath, priceJsonPath);
+            allResults.push({ file: fileName, result });
+
+            // Повторно читаем обработанный файл (он уже сохранён как *_2.xlsx)
+            const processedPath = result.outputPath;
+            const salesData = parseXLSX(processedPath);
+
+            const headers = salesData[0];
+            const rows = salesData.slice(1);
+
+            if (!combinedHeaders) combinedHeaders = headers;
+            combinedRows.push(...rows);
+        } catch (err) {
+            console.log(`Ошибка при обработке ${fileName}: ${err.message}`);
+        }
+    }
+
+    // Сохраняем объединённый файл
+    if (combinedRows.length && combinedHeaders) {
+        const outputPath = path.join(directoryPath, 'Combined_Processed_Data.xlsx');
+        saveXLSX(combinedRows, combinedHeaders, outputPath);
+        console.log(`Общий файл сохранён: ${outputPath}`);
+    }
+
+    return allResults;
+}
+
+
+module.exports = { processLatestXLSX, processBatchXLSX };

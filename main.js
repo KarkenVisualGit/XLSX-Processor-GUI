@@ -1,7 +1,7 @@
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs');
-const { processLatestXLSX } = require('./processor');
+const { processLatestXLSX, processBatchXLSX } = require('./processor');
 
 
 const ENABLE_GUI_LOGS = true;
@@ -58,5 +58,17 @@ ipcMain.handle('select-price-file', async () => {
 ipcMain.handle('process-xlsx', async (_event, inputPath, staticJsonPath) => {
     const result = await processLatestXLSX(inputPath, staticJsonPath);
     sendLogToWindow(result);
+    return result;
+});
+
+ipcMain.handle('process-batch-xlsx', async (_event, directoryPath, priceJsonPath) => {
+    const result = await processBatchXLSX(directoryPath, priceJsonPath);
+    return result;
+});
+
+ipcMain.handle('select-folder', async () => {
+    const result = await dialog.showOpenDialog({
+        properties: ['openDirectory']
+    });
     return result;
 });
