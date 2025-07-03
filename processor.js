@@ -138,7 +138,7 @@ async function processLatestXLSX(inputPath, priceJsonPath) {
     };
 }
 
-async function processBatchXLSX(directoryPath, priceJsonPath) {
+async function processBatchXLSX(directoryPath, priceJsonPath, customSavePath) {
     const allFiles = fs.readdirSync(directoryPath);
     const matchedFiles = allFiles.filter(file =>
         /^ArchiveOrders-\d{6}\.xlsx$/i.test(file) && !/_\d+\.xlsx$/i.test(file)
@@ -178,9 +178,13 @@ async function processBatchXLSX(directoryPath, priceJsonPath) {
 
     // Сохраняем объединённый файл
     if (combinedRows.length && combinedHeaders) {
-        const outputPath = path.join(directoryPath, 'Combined_Processed_Data.xlsx');
-        saveXLSX(combinedRows, combinedHeaders, outputPath);
-        console.log(`Общий файл сохранён: ${outputPath}`);
+        if (!customSavePath) {
+            console.log('Путь сохранения не предоставлен, файл не будет сохранён.');
+        } else {
+            saveXLSX(combinedRows, combinedHeaders, customSavePath);
+            console.log(`Общий файл сохранён: ${customSavePath}`);
+        }
+        console.log(`Общий файл сохранён: ${customSavePath}`);
     }
 
     return allResults;

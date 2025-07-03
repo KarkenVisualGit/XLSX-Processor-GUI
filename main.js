@@ -61,8 +61,8 @@ ipcMain.handle('process-xlsx', async (_event, inputPath, staticJsonPath) => {
     return result;
 });
 
-ipcMain.handle('process-batch-xlsx', async (_event, directoryPath, priceJsonPath) => {
-    const result = await processBatchXLSX(directoryPath, priceJsonPath);
+ipcMain.handle('process-batch-xlsx', async (_event, directoryPath, priceJsonPath, customSavePath) => {
+    const result = await processBatchXLSX(directoryPath, priceJsonPath, customSavePath);
     return result;
 });
 
@@ -71,4 +71,13 @@ ipcMain.handle('select-folder', async () => {
         properties: ['openDirectory']
     });
     return result;
+});
+
+ipcMain.handle('get-custom-save-path', async (_event, defaultFileName) => {
+    const { canceled, filePath } = await dialog.showSaveDialog({
+        title: 'Сохранить объединённый файл',
+        defaultPath: path.join(app.getPath('documents'), defaultFileName),
+        filters: [{ name: 'Excel Files', extensions: ['xlsx'] }]
+    });
+    return canceled ? null : filePath;
 });

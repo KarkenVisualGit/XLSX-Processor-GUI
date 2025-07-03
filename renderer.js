@@ -34,7 +34,18 @@ runBatchProcessingBtn.addEventListener('click', async () => {
 
     batchOutput.textContent = 'Обработка файлов...';
 
-    const processingResults = await window.electronAPI.processBatchXLSX(selectedBatchFolder, selectedPriceFile);
+    const customSavePath = await window.electronAPI.getCustomSavePath('Combined_Processed_Data.xlsx');
+
+    if (!customSavePath) {
+        batchOutput.textContent = 'Сохранение отменено пользователем.';
+        return;
+    }
+
+    const processingResults = await window.electronAPI.processBatchXLSX(
+        selectedBatchFolder,
+        selectedPriceFile,
+        customSavePath
+    );
 
     if (!processingResults || !Array.isArray(processingResults)) {
         batchOutput.textContent = 'Ошибка при обработке файлов.';
